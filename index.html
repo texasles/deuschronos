@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Stage Timer – Control</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Stage Timer – Control</h1>
+
+    <!-- SECTION: Add New Segment -->
+    <section id="add-segment">
+      <h2>Add Segment</h2>
+      <form id="segment-form">
+        <label for="segment-name">Segment Name:</label>
+        <input type="text" id="segment-name" placeholder="e.g. Intro" required />
+
+        <label for="segment-duration">Duration (MM:SS):</label>
+        <input
+          type="text"
+          id="segment-duration"
+          placeholder="e.g. 05:00"
+          pattern="^\d{1,2}:\d{2}$"
+          required
+        />
+
+        <button type="submit">Add to Schedule</button>
+      </form>
+    </section>
+
+    <!-- SECTION: Schedule Preview -->
+    <section id="schedule-preview">
+      <h2>Schedule Preview</h2>
+      <ul id="segment-list">
+        <!-- Dynamically populated -->
+      </ul>
+    </section>
+
+    <!-- SECTION: Timer Display & Controls -->
+    <section id="timer-display">
+      <h2>Current Segment</h2>
+      <div class="current-info">
+        <div>
+          <span class="label">Now:</span>
+          <span id="current-name">—</span>
+        </div>
+        <div>
+          <span class="label">Time Remaining:</span>
+          <span id="current-time">00:00</span>
+        </div>
+        <div>
+          <span class="label">Next:</span>
+          <span id="next-name">—</span>
+        </div>
+        <div>
+          <span class="label">Total Remaining:</span>
+          <span id="total-time">00:00</span>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button id="start-btn">Start</button>
+        <button id="pause-btn" disabled>Pause</button>
+        <button id="resume-btn" disabled>Resume</button>
+        <button id="reset-btn" disabled>Reset</button>
+      </div>
+
+      <!-- SECTION: Speaker Note (to be sent to Display) -->
+      <div id="note-section">
+        <label for="speaker-note">Speaker Note:</label>
+        <input type="text" id="speaker-note" placeholder="e.g. Let's wrap up…" />
+        <button id="send-note-btn">Send Note</button>
+      </div>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

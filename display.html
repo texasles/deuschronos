@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Stage Timer – Display</title>
+  <style>
+    /* 
+      Basic full-screen styling 
+      - Black background, white text 
+      - Large clock in the middle
+      - Room at bottom for a note
+    */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #000;
+      color: #fff;
+      font-family: Arial, Helvetica, sans-serif;
+      overflow: hidden;
+    }
+
+    .wrapper {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .segment-name {
+      font-size: 2rem;
+      margin-top: 20px;
+      opacity: 0.8;
+    }
+
+    .clock {
+      font-size: 8rem;
+      line-height: 1;
+      margin: 0;
+      padding: 0;
+    }
+
+    .note-area {
+      width: 100%;
+      padding: 10px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-top: 2px solid #fff;
+      box-sizing: border-box;
+    }
+
+    .note-area h2 {
+      font-size: 1.2rem;
+      margin-bottom: 8px;
+      opacity: 0.9;
+      text-decoration: underline;
+    }
+
+    .note-area p {
+      font-size: 1.5rem;
+      margin: 0;
+      word-wrap: break-word;
+      min-height: 2em;
+      opacity: 0.9;
+    }
+
+    /* Ensure the clock stays vertically centered */
+    .centered {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <!-- Top: Current Segment Name (Optional) -->
+    <div id="segmentName" class="segment-name">—</div>
+
+    <!-- Middle: Large Clock -->
+    <div class="centered">
+      <div id="clock" class="clock">00:00</div>
+    </div>
+
+    <!-- Bottom: Speaker Note -->
+    <div class="note-area">
+      <h2>Speaker Note:</h2>
+      <p id="speakerNote"> </p>
+    </div>
+  </div>
+
+  <script>
+    // Utility: format seconds to MM:SS
+    function formatTime(totalSec) {
+      const m = Math.floor(totalSec / 60);
+      const s = totalSec % 60;
+      const mm = String(m).padStart(2, '0');
+      const ss = String(s).padStart(2, '0');
+      return \`\${mm}:\${ss}\`;
+    }
+
+    // Grab DOM elements
+    const clockEl = document.getElementById('clock');
+    const segmentNameEl = document.getElementById('segmentName');
+    const speakerNoteEl = document.getElementById('speakerNote');
+
+    // Reads from localStorage → updates the DOM
+    function refreshDisplay() {
+      // 1) Get timer state
+      const rawState = localStorage.getItem('stageTimerState');
+      if (rawState) {
+        try {
+          const state = JSON.parse(rawState);
+          if (state.currentSegment) {
+            segmentNameEl.textContent = state.currentSegment;
+            clockEl.textContent = formatTime(state.remainingSeconds);
+          } else {
+            // No active segment
+            segmentNameEl.textContent = '—';
+            clockEl.textContent = '00:00';
+          }
+        } catch (e) {
+          // If JSON.parse fails, just show zeros
+          segmentNameEl.textContent = '—';
+          clockEl.textContent = '00:00';
+        }
+      } else {
+        // state key missing
+        segmentNameEl.textContent = '—';
+        clockEl.textContent = '00:00';
+      }
+
+      // 2) Get the speaker note
+      const note = localStorage.getItem('stageTimerNote');
+      speakerNoteEl.textContent = note || '';
+    }
+
+    // Listen for storage events (fired whenever localStorage changes on same origin)
+    window.addEventListener('storage', (evt) => {
+      if (
+        evt.key === 'stageTimerState' ||
+        evt.key === 'stageTimerNote'
+      ) {
+        refreshDisplay();
+      }
+    });
+
+    // Also, refresh every second in case the control page didn't fire a storage event
+    setInterval(refreshDisplay, 1000);
+
+    // On initial load:
+    refreshDisplay();
+  </script>
+</body>
+</html>
