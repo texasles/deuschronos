@@ -41,8 +41,6 @@ function formatTime(totalSec) {
 }
 
 function calculateTotalRemaining(startIdx = 0, offsetSeconds = 0) {
-  // Sum durations of segments from startIdx onward,
-  // then subtract offsetSeconds from the first segment's total.
   let sum = 0;
   for (let i = startIdx; i < segments.length; i++) {
     sum += segments[i].durationSeconds;
@@ -54,7 +52,6 @@ function calculateTotalRemaining(startIdx = 0, offsetSeconds = 0) {
 // Write the current timer state into localStorage as JSON.
 function writeStateToLocalStorage() {
   if (currentIndex < 0 || currentIndex >= segments.length) {
-    // No active segment
     const payload = {
       currentSegment: null,
       remainingSeconds: 0,
@@ -66,9 +63,8 @@ function writeStateToLocalStorage() {
   }
 
   const currSeg = segments[currentIndex];
-  const nextSegName = (currentIndex + 1 < segments.length)
-    ? segments[currentIndex + 1].name
-    : null;
+  const nextSegName =
+    (currentIndex + 1 < segments.length) ? segments[currentIndex + 1].name : null;
   const totalRem = calculateTotalRemaining(
     currentIndex,
     currSeg.durationSeconds - remainingSeconds
@@ -90,7 +86,6 @@ function renderSegmentList() {
   segments.forEach((seg, idx) => {
     const li = document.createElement('li');
     li.textContent = `${seg.name} — ${formatTime(seg.durationSeconds)}`;
-    // Gray out or bold depending on state
     if (idx < currentIndex) {
       li.style.opacity = '0.5';
     } else if (idx === currentIndex) {
@@ -101,13 +96,11 @@ function renderSegmentList() {
 }
 
 function updateTimerDisplay() {
-  // If no active segment, show placeholders
   if (currentIndex < 0 || currentIndex >= segments.length) {
     currentNameEl.textContent = '—';
     currentTimeEl.textContent = '00:00';
     nextNameEl.textContent = '—';
     totalTimeEl.textContent = '00:00';
-
     writeStateToLocalStorage();
     return;
   }
@@ -116,11 +109,10 @@ function updateTimerDisplay() {
   currentNameEl.textContent = currSeg.name;
   currentTimeEl.textContent = formatTime(remainingSeconds);
 
-  if (currentIndex + 1 < segments.length) {
-    nextNameEl.textContent = segments[currentIndex + 1].name;
-  } else {
-    nextNameEl.textContent = '—';
-  }
+  nextNameEl.textContent =
+    (currentIndex + 1 < segments.length)
+      ? segments[currentIndex + 1].name
+      : '—';
 
   const totalRem = calculateTotalRemaining(
     currentIndex,
@@ -135,7 +127,6 @@ function updateTimerDisplay() {
 // ========== TIMER LOGIC ==========
 function startTimer() {
   if (currentIndex === -1) {
-    // Just beginning
     if (segments.length === 0) {
       alert('Add at least one segment before starting the timer.');
       return;
@@ -144,27 +135,23 @@ function startTimer() {
     remainingSeconds = segments[0].durationSeconds;
   }
 
-  // Disable/Enable appropriate buttons
   startBtn.disabled = true;
   pauseBtn.disabled = false;
   resetBtn.disabled = false;
   segmentNameInput.disabled = true;
   segmentDurationInput.disabled = true;
 
-  // Kick off the interval
   timerInterval = setInterval(() => {
     if (remainingSeconds > 0) {
       remainingSeconds--;
       updateTimerDisplay();
     } else {
-      // Move to next segment
       clearInterval(timerInterval);
       if (currentIndex + 1 < segments.length) {
         currentIndex++;
         remainingSeconds = segments[currentIndex].durationSeconds;
-        startTimer(); // Recursively start next segment
+        startTimer();
       } else {
-        // All done
         updateTimerDisplay();
         alert('All segments completed.');
         pauseBtn.disabled = true;
@@ -222,8 +209,6 @@ function resetTimer() {
 }
 
 // ========== EVENT LISTENERS ==========
-
-// 1) Add new segment
 form.addEventListener('submit', (evt) => {
   evt.preventDefault();
   const name = segmentNameInput.value.trim();
@@ -239,25 +224,15 @@ form.addEventListener('submit', (evt) => {
   segmentNameInput.value = '';
   segmentDurationInput.value = '';
   renderSegmentList();
-
-  // Update totalRemaining (nothing is running yet)
   totalTimeEl.textContent = formatTime(calculateTotalRemaining());
   writeStateToLocalStorage();
 });
 
-// 2) Start
 startBtn.addEventListener('click', () => startTimer());
-
-// 3) Pause
 pauseBtn.addEventListener('click', () => pauseTimer());
-
-// 4) Resume
 resumeBtn.addEventListener('click', () => resumeTimer());
-
-// 5) Reset
 resetBtn.addEventListener('click', () => resetTimer());
 
-// 6) Send Speaker Note
 sendNoteBtn.addEventListener('click', () => {
   const note = speakerNoteInput.value.trim();
   localStorage.setItem('stageTimerNote', note || '');
