@@ -103,7 +103,7 @@
       const s = totalSec % 60;
       const mm = String(m).padStart(2, '0');
       const ss = String(s).padStart(2, '0');
-      return \`\${mm}:\${ss}\`;
+      return `${mm}:${ss}`;
     }
 
     // Grab DOM elements
@@ -116,23 +116,21 @@
       // 1) Get timer state
       const rawState = localStorage.getItem('stageTimerState');
       if (rawState) {
+        let state = null;
         try {
-          const state = JSON.parse(rawState);
-          if (state.currentSegment) {
-            segmentNameEl.textContent = state.currentSegment;
-            clockEl.textContent = formatTime(state.remainingSeconds);
-          } else {
-            // No active segment
-            segmentNameEl.textContent = '—';
-            clockEl.textContent = '00:00';
-          }
+          state = JSON.parse(rawState);
         } catch (e) {
-          // If JSON.parse fails, just show zeros
+          state = null;
+        }
+
+        if (state && state.currentSegment) {
+          segmentNameEl.textContent = state.currentSegment;
+          clockEl.textContent = formatTime(state.remainingSeconds);
+        } else {
           segmentNameEl.textContent = '—';
           clockEl.textContent = '00:00';
         }
       } else {
-        // state key missing
         segmentNameEl.textContent = '—';
         clockEl.textContent = '00:00';
       }
@@ -144,15 +142,12 @@
 
     // Listen for storage events (fired whenever localStorage changes on same origin)
     window.addEventListener('storage', (evt) => {
-      if (
-        evt.key === 'stageTimerState' ||
-        evt.key === 'stageTimerNote'
-      ) {
+      if (evt.key === 'stageTimerState' || evt.key === 'stageTimerNote') {
         refreshDisplay();
       }
     });
 
-    // Also, refresh every second in case the control page didn't fire a storage event
+    // Also, refresh every second in case the control page didn’t fire a storage event
     setInterval(refreshDisplay, 1000);
 
     // On initial load:
