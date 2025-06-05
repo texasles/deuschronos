@@ -116,3 +116,30 @@ section {
   background: #95a5a6;
   cursor: not-allowed;
 }
+
+#note-section {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#note-section input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+#note-section button {
+  padding: 8px 16px;
+  background-color: #e67e22;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#note-section button:hover {
+  background-color: #d35400;
+}
